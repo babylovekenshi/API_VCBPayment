@@ -1,0 +1,12 @@
+{
+  "Version": 1,
+  "Hash": "SXR1Z14++hj4B49pMo/xFljiO2CSziFx94tjga28p7c=",
+  "Source": "API_VCBPayment",
+  "BasePath": "_content/API_VCBPayment",
+  "Mode": "Default",
+  "ManifestType": "Build",
+  "ReferencedProjectsConfiguration": [],
+  "DiscoveryPatterns": [],
+  "Assets": [],
+  "Endpoints": []
+}

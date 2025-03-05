@@ -1,0 +1,172 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "API_VCBPayment",
+    "version": "1.0"
+  },
+  "paths": {
+    "/api/VCBPayment/AccountAdvice": {
+      "post": {
+        "tags": [
+          "VCB_Payment"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AccountAdvice"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AccountAdvice"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/AccountAdvice"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "AccountAdvice": {
+        "type": "object",
+        "properties": {
+          "context": {
+            "$ref": "#/components/schemas/Context"
+          },
+          "payload": {
+            "$ref": "#/components/schemas/Payload"
+          },
+          "signature": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "Context": {
+        "type": "object",
+        "properties": {
+          "channelId": {
+            "type": "string",
+            "nullable": true
+          },
+          "channelRefNumber": {
+            "type": "string",
+            "nullable": true
+          },
+          "errorCode": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "errorMessage": {
+            "type": "string",
+            "nullable": true
+          },
+          "requestDateTime": {
+            "type": "string",
+            "nullable": true
+          },
+          "responseMsgId": {
+            "type": "string",
+            "nullable": true
+          },
+          "status": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "Payload": {
+        "type": "object",
+        "properties": {
+          "providerId": {
+            "type": "string",
+            "nullable": true
+          },
+          "serviceId": {
+            "type": "string",
+            "nullable": true
+          },
+          "account": {
+            "type": "string",
+            "nullable": true
+          },
+          "amount": {
+            "type": "string",
+            "nullable": true
+          },
+          "currency": {
+            "type": "string",
+            "nullable": true
+          },
+          "currentBal": {
+            "type": "string",
+            "nullable": true
+          },
+          "availBal": {
+            "type": "string",
+            "nullable": true
+          },
+          "holdAmount": {
+            "type": "string",
+            "nullable": true
+          },
+          "dorc": {
+            "type": "string",
+            "nullable": true
+          },
+          "transactionTime": {
+            "type": "string",
+            "nullable": true
+          },
+          "internalTransactionRefNo": {
+            "type": "string",
+            "nullable": true
+          },
+          "remark": {
+            "type": "string",
+            "nullable": true
+          },
+          "hostInfo": {
+            "type": "string",
+            "nullable": true
+          },
+          "tellerId": {
+            "type": "string",
+            "nullable": true
+          },
+          "seqNo": {
+            "type": "string",
+            "nullable": true
+          },
+          "hostDate": {
+            "type": "string",
+            "nullable": true
+          },
+          "pcTime": {
+            "type": "string",
+            "nullable": true
+          },
+          "branch": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      }
+    }
+  }
+}

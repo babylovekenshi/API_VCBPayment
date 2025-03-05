@@ -1,0 +1,18 @@
+[
+  {
+    "ContainingType": "API_VCBPayment.Controllers.VCB_PaymentController",
+    "Method": "AccountAdvice",
+    "RelativePath": "api/VCBPayment/AccountAdvice",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "BodyJson",
+        "Type": "API_VCBPayment.AccountAdvice",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  }
+]
