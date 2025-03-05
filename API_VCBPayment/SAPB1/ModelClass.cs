@@ -25,7 +25,7 @@
             public string? signature { get; set; }
         }
 
-        public class Context
+        public class ReturnContext
         {
             public string? channelId { get; set; }
             public string? channelRefNumber { get; set; }

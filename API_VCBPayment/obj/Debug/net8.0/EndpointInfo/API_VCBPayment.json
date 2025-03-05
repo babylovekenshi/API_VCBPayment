@@ -66,23 +66,25 @@
             "type": "string",
             "nullable": true
           },
-          "errorCode": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "errorMessage": {
-            "type": "string",
-            "nullable": true
-          },
           "requestDateTime": {
             "type": "string",
             "nullable": true
-          },
-          "responseMsgId": {
+          }
+        },
+        "additionalProperties": false
+      },
+      "Hostinfo": {
+        "type": "object",
+        "properties": {
+          "tellerId": {
             "type": "string",
             "nullable": true
           },
-          "status": {
+          "seqNo": {
+            "type": "string",
+            "nullable": true
+          },
+          "branch": {
             "type": "string",
             "nullable": true
           }
@@ -132,37 +134,12 @@
             "type": "string",
             "nullable": true
           },
-          "internalTransactionRefNo": {
-            "type": "string",
-            "nullable": true
-          },
           "remark": {
             "type": "string",
             "nullable": true
           },
           "hostInfo": {
-            "type": "string",
-            "nullable": true
-          },
-          "tellerId": {
-            "type": "string",
-            "nullable": true
-          },
-          "seqNo": {
-            "type": "string",
-            "nullable": true
-          },
-          "hostDate": {
-            "type": "string",
-            "nullable": true
-          },
-          "pcTime": {
-            "type": "string",
-            "nullable": true
-          },
-          "branch": {
-            "type": "string",
-            "nullable": true
+            "$ref": "#/components/schemas/Hostinfo"
           }
         },
         "additionalProperties": false

@@ -82,12 +82,14 @@ namespace API_VCBPayment.SAPB1
             }
         }
 #pragma warning disable CS8602 // Dereference of a possibly null reference.
-        public static string API_POST(string ApiMESCD, string TableName)
+        public static string API_POST(string ApiMESCD, string TableName, string channelId, string channelRefNumber)
         {
             if (LogIn().ToList().Count() == 0)
             {
                 Login.LogIn();
             }
+            List<PaymentReturn> PaymentReturn = new List<PaymentReturn>();
+            List<ReturnContext> ReturnContext = new List<ReturnContext>();
             string? IPServer = "117.4.122.18";
 #pragma warning disable SYSLIB0014 // Type or member is obsolete
             var httpWebRequestMESLSX = (HttpWebRequest)WebRequest.Create($"https://{IPServer}:50000/b1s/v1/{TableName}");
@@ -120,7 +122,17 @@ namespace API_VCBPayment.SAPB1
                     var resultMESLSX = streamReaderMESCD.ReadToEnd();
                     Console.WriteLine(resultMESLSX);
 
-                    return streamReaderMESCD.ReadToEnd(); 
+                    var _ReturnContext = new ReturnContext()
+                    {
+                        channelId = channelId,
+                        channelRefNumber = channelRefNumber,
+                        errorCode = 0,
+                        errorMessage = "SUCCESS",
+                        requestDateTime = DateTime.Now.ToString("dd-mm-yyyy HH24:MI:SS"),
+                        responseMsgId ="",
+                        status = "SUCCESS",
+                    };
+                    return JsonConvert.SerializeObject(_ReturnContext); 
                 }
 
             }
@@ -129,7 +141,17 @@ namespace API_VCBPayment.SAPB1
                 using (var stream = ex.Response.GetResponseStream())
                 using (var reader = new StreamReader(stream))
                 {
-                    return reader.ReadToEnd();
+                    var _ReturnContext = new ReturnContext()
+                    {
+                        channelId = channelId,
+                        channelRefNumber = channelRefNumber,
+                        errorCode = 1,
+                        errorMessage = "FAILURE",
+                        requestDateTime = DateTime.Now.ToString("dd-mm-yyyy HH24:MI:SS"),
+                        responseMsgId = "",
+                        status = "FAILURE",
+                    };
+                    return JsonConvert.SerializeObject(_ReturnContext);
                 }
             }
         }

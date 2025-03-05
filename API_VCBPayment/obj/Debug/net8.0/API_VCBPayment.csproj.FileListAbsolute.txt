@@ -35,3 +35,4 @@ C:\New folder\API_VCBPayment\API_VCBPayment\obj\Debug\net8.0\API_VCBPayment.pdb
 C:\New folder\API_VCBPayment\API_VCBPayment\obj\Debug\net8.0\API_VCBPayment.genruntimeconfig.cache
 C:\New folder\API_VCBPayment\API_VCBPayment\obj\Debug\net8.0\ref\API_VCBPayment.dll
 C:\New folder\API_VCBPayment\API_VCBPayment\bin\Debug\net8.0\Newtonsoft.Json.dll
+C:\New folder\API_VCBPayment\API_VCBPayment\obj\Debug\net8.0\API_VCBPayment.sourcelink.json
