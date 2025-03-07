@@ -41,7 +41,6 @@
 
     public class SAP_AccountAdvice
     {
-        public int DocNum { get; set; }
         public string? U_channelId { get; set; }
         public object? U_channelRefNumber { get; set; }
         public object? U_requestDateTime { get; set; }
