@@ -5,11 +5,15 @@ using Newtonsoft.Json;
 using static API_VCBPayment.SAPB1.ModelClass;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 using System.IO;
+using System.Threading.Channels;
+using System.Reflection.PortableExecutable;
+using System.Security.Cryptography;
+using System.Text;
 #pragma warning disable CS8602 // Dereference of a possibly null reference.
 namespace API_VCBPayment.Controllers
 {
     [ApiController]
-    [Route("api/VCBPayment")]
+    [Route("/api/VCBPayment/")]
     public class VCB_PaymentController : Controller
     {
         public List<Api_Json_SessionId> ApiJsonSessionId = new List<Api_Json_SessionId>();
@@ -22,10 +26,25 @@ namespace API_VCBPayment.Controllers
         {
             try
             {
+                List<ReturnContext> ReturnContext = new List<ReturnContext>();
+                if (string.IsNullOrEmpty(BodyJson.context.channelId) || BodyJson.context.channelId.ToString() == "string")
+                {
+                    var _ReturnContext = new ReturnContext()
+                    {
+                        channelId = BodyJson.context.channelId,
+                        channelRefNumber = BodyJson.context.channelRefNumber,
+                        errorCode = 0,
+                        errorMessage = "FAILURE",
+                        requestDateTime = DateTime.Now.ToString("dd-mm-yyyy HH24:MI:SS"),
+                        responseMsgId = "",
+                        status = "FAILURE",
+                    };
+                    var s = JsonConvert.SerializeObject(_ReturnContext).ToString();
+                    return Ok(JsonConvert.SerializeObject(_ReturnContext).ToString());
+                }
                 List<SAP_AccountAdvice> SAP_AccountAdvice = new List<SAP_AccountAdvice>();
                 var _SAP_AccountAdvice = new SAP_AccountAdvice()
                 {
-                    DocNum = 1,
                     U_channelId = BodyJson.context.channelId,
                     U_channelRefNumber = BodyJson.context.channelRefNumber,
                     U_requestDateTime = BodyJson.context.requestDateTime,
@@ -49,12 +68,19 @@ namespace API_VCBPayment.Controllers
                     U_InputJson = JsonConvert.SerializeObject(BodyJson),
                     U_internalRefNo = null,
                 };
+                bool signature = Login.VerifyMD5Hash(BodyJson.signature.ToString(), "");
+                if (signature == true)
+                {
+                    var ACCOUNTADVICE = JsonConvert.SerializeObject(_SAP_AccountAdvice);
+                    var _API_POST = Login.API_POST(ACCOUNTADVICE, "ACCOUNTADVICE", BodyJson.context.channelId.ToString(), BodyJson.context.channelRefNumber.ToString());
+                    return Ok(_API_POST);
+                }
+                else
+                {
 
-                var ACCOUNTADVICE = JsonConvert.SerializeObject(_SAP_AccountAdvice);
-                var _API_POST = Login.API_POST(ACCOUNTADVICE, "ACCOUNTADVICE",BodyJson.context.channelId.ToString(), BodyJson.context.channelRefNumber.ToString());
-
+                }
                 //var data = 0;
-                return Ok(_API_POST);
+                
             }
             catch (WebException ex)
             {

@@ -5,6 +5,8 @@ using Newtonsoft.Json;
 using System.IO;
 using System.Net;
 using System.Reflection.PortableExecutable;
+using System.Security.Cryptography;
+using System.Text;
 using static API_VCBPayment.SAPB1.ModelClass;
 using static System.Net.Mime.MediaTypeNames;
 
@@ -13,7 +15,7 @@ namespace API_VCBPayment.SAPB1
 
     public class Login
     {
-        
+
         public string? IPServer = "117.4.122.18";
         public static List<Api_Json_SessionId> LogIn()
         {
@@ -21,7 +23,7 @@ namespace API_VCBPayment.SAPB1
             try
             {
 #pragma warning disable CS8602 // Dereference of a possibly null reference.
-                
+
                 string? IPServer;
                 IPServer = "117.4.122.18";//GetLocalIPAddress();
                 UserDto _NewUser = new UserDto
@@ -61,13 +63,13 @@ namespace API_VCBPayment.SAPB1
                     {
                         SessionId = Obj.SessionId,
                         SessionTimeout = Obj.SessionTimeout,
-                        Timeout= System.DateTime.Now.AddMinutes(Obj.SessionTimeout),
+                        Timeout = System.DateTime.Now.AddMinutes(Obj.SessionTimeout),
                     };
 
 
                     ApiJsonSessionId.Add(_InSessionId);
 
-                    return  ApiJsonSessionId; 
+                    return ApiJsonSessionId;
                 }
             }
             catch (WebException ex)
@@ -129,10 +131,10 @@ namespace API_VCBPayment.SAPB1
                         errorCode = 0,
                         errorMessage = "SUCCESS",
                         requestDateTime = DateTime.Now.ToString("dd-mm-yyyy HH24:MI:SS"),
-                        responseMsgId ="",
+                        responseMsgId = "",
                         status = "SUCCESS",
                     };
-                    return JsonConvert.SerializeObject(_ReturnContext); 
+                    return JsonConvert.SerializeObject(_ReturnContext);
                 }
 
             }
@@ -170,6 +172,54 @@ namespace API_VCBPayment.SAPB1
             }
 
             return "Không tìm thấy địa chỉ IP!";
+        }
+        static string ComputeMD5Hash(string input)
+        {
+            using (MD5 md5 = MD5.Create())
+            {
+                byte[] inputBytes = Encoding.UTF8.GetBytes(input);
+                byte[] hashBytes = md5.ComputeHash(inputBytes);
+
+                // Convert byte array to hexadecimal string
+                StringBuilder sb = new StringBuilder();
+                foreach (byte b in hashBytes)
+                {
+                    sb.Append(b.ToString("x2")); // Converts byte to lowercase hexadecimal
+                }
+                return sb.ToString();
+            }
+        }
+        public static bool VerifyMD5Hash(string input, string hash)
+        {
+            using (MD5 md5 = MD5.Create())
+            {
+                byte[] inputBytes = Encoding.UTF8.GetBytes(input);
+                byte[] hashBytes = md5.ComputeHash(inputBytes);
+
+                StringBuilder sb = new StringBuilder();
+                foreach (byte b in hashBytes)
+                {
+                    sb.Append(b.ToString("x2"));
+                }
+
+                return sb.ToString().Equals(hash, StringComparison.OrdinalIgnoreCase);
+            }
+        }
+
+        public static string API_Return(string channelId, string channelRefNumber, int errorCode, string errorMessage)
+        {
+            var _ReturnContext = new ReturnContext()
+            {
+                channelId = channelId,
+                channelRefNumber = channelRefNumber,
+                errorCode = 0,
+                errorMessage = "FAILURE",
+                requestDateTime = DateTime.Now.ToString("dd-mm-yyyy HH24:MI:SS"),
+                responseMsgId = "",
+                status = "FAILURE",
+            };
+            var s = JsonConvert.SerializeObject(_ReturnContext).ToString();
+            return Ok(JsonConvert.SerializeObject(_ReturnContext).ToString());
         }
     }
 }
