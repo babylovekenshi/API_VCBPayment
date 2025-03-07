@@ -16,7 +16,7 @@ namespace API_VCBPayment.SAPB1
     public class Login
     {
 
-        public string? IPServer = "117.4.122.18";
+       
         public static List<Api_Json_SessionId> LogIn()
         {
             List<Api_Json_SessionId>? ApiJsonSessionId = new List<Api_Json_SessionId>();
@@ -25,7 +25,7 @@ namespace API_VCBPayment.SAPB1
 #pragma warning disable CS8602 // Dereference of a possibly null reference.
 
                 string? IPServer;
-                IPServer = "117.4.122.18";//GetLocalIPAddress();
+                IPServer = GetLocalIPAddress();//GetLocalIPAddress();
                 UserDto _NewUser = new UserDto
                 {
                     UserName = "manager",
@@ -92,7 +92,7 @@ namespace API_VCBPayment.SAPB1
             }
             List<PaymentReturn> PaymentReturn = new List<PaymentReturn>();
             List<ReturnContext> ReturnContext = new List<ReturnContext>();
-            string? IPServer = "117.4.122.18";
+            string? IPServer = GetLocalIPAddress();
 #pragma warning disable SYSLIB0014 // Type or member is obsolete
             var httpWebRequestMESLSX = (HttpWebRequest)WebRequest.Create($"https://{IPServer}:50000/b1s/v1/{TableName}");
 #pragma warning restore SYSLIB0014 // Type or member is obsolete
@@ -124,17 +124,8 @@ namespace API_VCBPayment.SAPB1
                     var resultMESLSX = streamReaderMESCD.ReadToEnd();
                     Console.WriteLine(resultMESLSX);
 
-                    var _ReturnContext = new ReturnContext()
-                    {
-                        channelId = channelId,
-                        channelRefNumber = channelRefNumber,
-                        errorCode = 0,
-                        errorMessage = "SUCCESS",
-                        requestDateTime = DateTime.Now.ToString("dd-mm-yyyy HH24:MI:SS"),
-                        responseMsgId = "",
-                        status = "SUCCESS",
-                    };
-                    return JsonConvert.SerializeObject(_ReturnContext);
+                    var Error = Login.API_Return(channelId.ToString(), channelRefNumber.ToString(), 0, "Success", "Success");
+                    return JsonConvert.SerializeObject(Error);
                 }
 
             }
@@ -143,17 +134,8 @@ namespace API_VCBPayment.SAPB1
                 using (var stream = ex.Response.GetResponseStream())
                 using (var reader = new StreamReader(stream))
                 {
-                    var _ReturnContext = new ReturnContext()
-                    {
-                        channelId = channelId,
-                        channelRefNumber = channelRefNumber,
-                        errorCode = 1,
-                        errorMessage = "FAILURE",
-                        requestDateTime = DateTime.Now.ToString("dd-mm-yyyy HH24:MI:SS"),
-                        responseMsgId = "",
-                        status = "FAILURE",
-                    };
-                    return JsonConvert.SerializeObject(_ReturnContext);
+                    var Error = Login.API_Return(channelId.ToString(), channelRefNumber.ToString(), 1, "FAILURE", "FAILURE");
+                    return JsonConvert.SerializeObject(Error);
                 }
             }
         }
@@ -206,20 +188,20 @@ namespace API_VCBPayment.SAPB1
             }
         }
 
-        public static string API_Return(string channelId, string channelRefNumber, int errorCode, string errorMessage)
+        public static string API_Return(string channelId, string channelRefNumber, int errorCode, string errorMessage, string responseMsgId)
         {
             var _ReturnContext = new ReturnContext()
             {
                 channelId = channelId,
                 channelRefNumber = channelRefNumber,
-                errorCode = 0,
-                errorMessage = "FAILURE",
+                errorCode = errorCode,
+                errorMessage = errorMessage,
                 requestDateTime = DateTime.Now.ToString("dd-mm-yyyy HH24:MI:SS"),
                 responseMsgId = "",
-                status = "FAILURE",
+                status = errorMessage,
             };
             var s = JsonConvert.SerializeObject(_ReturnContext).ToString();
-            return Ok(JsonConvert.SerializeObject(_ReturnContext).ToString());
+            return JsonConvert.SerializeObject(_ReturnContext).ToString();
         }
     }
 }

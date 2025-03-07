@@ -9,6 +9,7 @@ using System.Threading.Channels;
 using System.Reflection.PortableExecutable;
 using System.Security.Cryptography;
 using System.Text;
+using Microsoft.AspNetCore.Http.HttpResults;
 #pragma warning disable CS8602 // Dereference of a possibly null reference.
 namespace API_VCBPayment.Controllers
 {
@@ -29,18 +30,8 @@ namespace API_VCBPayment.Controllers
                 List<ReturnContext> ReturnContext = new List<ReturnContext>();
                 if (string.IsNullOrEmpty(BodyJson.context.channelId) || BodyJson.context.channelId.ToString() == "string")
                 {
-                    var _ReturnContext = new ReturnContext()
-                    {
-                        channelId = BodyJson.context.channelId,
-                        channelRefNumber = BodyJson.context.channelRefNumber,
-                        errorCode = 0,
-                        errorMessage = "FAILURE",
-                        requestDateTime = DateTime.Now.ToString("dd-mm-yyyy HH24:MI:SS"),
-                        responseMsgId = "",
-                        status = "FAILURE",
-                    };
-                    var s = JsonConvert.SerializeObject(_ReturnContext).ToString();
-                    return Ok(JsonConvert.SerializeObject(_ReturnContext).ToString());
+                    var Error = Login.API_Return(BodyJson.context.channelId.ToString(), BodyJson.context.channelId.ToString(), 1, "FAILURE", "");
+                    return Ok(Error);
                 }
                 List<SAP_AccountAdvice> SAP_AccountAdvice = new List<SAP_AccountAdvice>();
                 var _SAP_AccountAdvice = new SAP_AccountAdvice()
@@ -68,7 +59,7 @@ namespace API_VCBPayment.Controllers
                     U_InputJson = JsonConvert.SerializeObject(BodyJson),
                     U_internalRefNo = null,
                 };
-                bool signature = Login.VerifyMD5Hash(BodyJson.signature.ToString(), "");
+                bool signature = Login.VerifyMD5Hash(BodyJson.signature.ToString(), System.IO.File.ReadAllText(@"/usr/sap/API_VCB_PAYMENT/VerifyMD5Hash.txt"));
                 if (signature == true)
                 {
                     var ACCOUNTADVICE = JsonConvert.SerializeObject(_SAP_AccountAdvice);
@@ -77,17 +68,16 @@ namespace API_VCBPayment.Controllers
                 }
                 else
                 {
-
-                }
-                //var data = 0;
-                
+                    var Error = Login.API_Return(BodyJson.context.channelId.ToString(), BodyJson.context.channelId.ToString(), 1, "FAILURE", "");
+                    return Ok(Error);
+                }              
             }
             catch (WebException ex)
             {
                 using (var stream = ex.Response.GetResponseStream())
                 using (var reader = new StreamReader(stream))
                 {
-                    return Ok(reader.ReadToEnd());
+                    return StatusCode(400, "BAD_REQUEST");
 
                 }
             }
