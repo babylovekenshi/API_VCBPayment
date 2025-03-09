@@ -84,8 +84,12 @@ namespace API_VCBPayment.Controllers
 #pragma warning restore CS8602 // Dereference of a possibly null reference.
         }
 
+        [HttpGet]
+        public IActionResult health()
+        {
+            return Ok(new { message = "API is working!" });
+        }
 
 
-        
     }
 }
