@@ -1,0 +1,10 @@
+﻿################################################################################
+# This .gitignore file was automatically created by Microsoft(R) Visual Studio.
+################################################################################
+
+/.vs/API_VCBPayment/FileContentIndex
+/.vs/ProjectEvaluation
+/API_VCBPayment/bin
+/API_VCBPayment/obj/Debug/net7.0
+/API_VCBPayment/obj/Debug/net8.0/win-x64
+/API_VCBPayment/obj/Release

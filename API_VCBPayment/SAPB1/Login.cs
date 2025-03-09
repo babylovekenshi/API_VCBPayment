@@ -124,8 +124,8 @@ namespace API_VCBPayment.SAPB1
                     var resultMESLSX = streamReaderMESCD.ReadToEnd();
                     Console.WriteLine(resultMESLSX);
 
-                    var Error = Login.API_Return(channelId.ToString(), channelRefNumber.ToString(), 0, "Success", "Success");
-                    return JsonConvert.SerializeObject(Error);
+                    var Error = Login.API_Return(channelId.ToString(), channelRefNumber.ToString(), 0, "Success", "Success", "Truy vấn, thanh toán thành công");
+                    return Error;
                 }
 
             }
@@ -134,8 +134,8 @@ namespace API_VCBPayment.SAPB1
                 using (var stream = ex.Response.GetResponseStream())
                 using (var reader = new StreamReader(stream))
                 {
-                    var Error = Login.API_Return(channelId.ToString(), channelRefNumber.ToString(), 1, "FAILURE", "FAILURE");
-                    return JsonConvert.SerializeObject(Error);
+                    var Error = Login.API_Return(channelId.ToString(), channelRefNumber.ToString(), 400, "400", "400", "BAD_REQUEST");
+                    return (Error);
                 }
             }
         }
@@ -188,7 +188,7 @@ namespace API_VCBPayment.SAPB1
             }
         }
 
-        public static string API_Return(string channelId, string channelRefNumber, int errorCode, string errorMessage, string responseMsgId)
+        public static string API_Return(string channelId, string channelRefNumber, int errorCode, string errorMessage, string responseMsgId, string status)
         {
             var _ReturnContext = new ReturnContext()
             {
@@ -198,7 +198,7 @@ namespace API_VCBPayment.SAPB1
                 errorMessage = errorMessage,
                 requestDateTime = DateTime.Now.ToString("dd-mm-yyyy HH24:MI:SS"),
                 responseMsgId = "",
-                status = errorMessage,
+                status = status,
             };
             var s = JsonConvert.SerializeObject(_ReturnContext).ToString();
             return JsonConvert.SerializeObject(_ReturnContext).ToString();
