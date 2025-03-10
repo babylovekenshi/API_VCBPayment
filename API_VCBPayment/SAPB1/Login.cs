@@ -25,7 +25,7 @@ namespace API_VCBPayment.SAPB1
 #pragma warning disable CS8602 // Dereference of a possibly null reference.
 
                 string? IPServer;
-                IPServer = GetLocalIPAddress();//GetLocalIPAddress();
+                IPServer = "117.4.122.18";//GetLocalIPAddress();
                 UserDto _NewUser = new UserDto
                 {
                     UserName = "manager",
@@ -90,9 +90,7 @@ namespace API_VCBPayment.SAPB1
             {
                 Login.LogIn();
             }
-            List<PaymentReturn> PaymentReturn = new List<PaymentReturn>();
-            List<ReturnContext> ReturnContext = new List<ReturnContext>();
-            string? IPServer = GetLocalIPAddress();
+            string? IPServer = "117.4.122.18";//GetLocalIPAddress();
 #pragma warning disable SYSLIB0014 // Type or member is obsolete
             var httpWebRequestMESLSX = (HttpWebRequest)WebRequest.Create($"https://{IPServer}:50000/b1s/v1/{TableName}");
 #pragma warning restore SYSLIB0014 // Type or member is obsolete
@@ -123,8 +121,10 @@ namespace API_VCBPayment.SAPB1
                 {
                     var resultMESLSX = streamReaderMESCD.ReadToEnd();
                     Console.WriteLine(resultMESLSX);
+                    var SAP_API_Return = JsonConvert.DeserializeObject<API_Return>(resultMESLSX);
 
-                    var Error = Login.API_Return(channelId.ToString(), channelRefNumber.ToString(), 0, "Success", "Success", "Truy vấn, thanh toán thành công");
+                    int SAP_channelRefNumber = SAP_API_Return.DocEntry;
+                    var Error = Login.API_Return(channelId.ToString(), channelRefNumber.ToString(), 0, "Success", SAP_channelRefNumber, "Truy vấn, thanh toán thành công", "");
                     return Error;
                 }
 
@@ -134,7 +134,7 @@ namespace API_VCBPayment.SAPB1
                 using (var stream = ex.Response.GetResponseStream())
                 using (var reader = new StreamReader(stream))
                 {
-                    var Error = Login.API_Return(channelId.ToString(), channelRefNumber.ToString(), 400, "BAD_REQUEST", "400", "BAD_REQUEST");
+                    var Error = Login.API_Return(channelId.ToString(), channelRefNumber.ToString(), 400, "BAD_REQUEST", 0, "BAD_REQUEST", "");
                     return (Error);
                 }
             }
@@ -155,7 +155,7 @@ namespace API_VCBPayment.SAPB1
 
             return "Không tìm thấy địa chỉ IP!";
         }
-        static string ComputeMD5Hash(string input)
+        public static string ComputeMD5Hash(string input)
         {
             using (MD5 md5 = MD5.Create())
             {
@@ -198,19 +198,36 @@ namespace API_VCBPayment.SAPB1
                 return computedHash == expectedHash.ToLower();
             }
         }
-        public static string API_Return(string channelId, string channelRefNumber, int errorCode, string errorMessage, string responseMsgId, string status)
+
+        public static string API_Return(string channelId, string channelRefNumber, int errorCode, string errorMessage, int responseMsgId, string status, string signature1)
         {
-            var _ReturnContext = new ReturnContext()
+            string Input = channelId + "|" + channelRefNumber + "|" + responseMsgId + "|" + "Simon@VCBPayment2503";
+            string _ComputeMD5Hash = ComputeMD5Hash(Input);
+            bool signature = Login.VerifyMD5Hash(Input, _ComputeMD5Hash.ToString());
+
+            List<ReturnContext> ReturnContext = new List<ReturnContext>();
+            var _ContextError = new ContextError()
             {
                 channelId = channelId,
                 channelRefNumber = channelRefNumber,
-                errorCode = errorCode,
+                errorCode = errorCode.ToString(),
                 errorMessage = errorMessage,
                 requestDateTime = DateTime.Now.ToString("dd-mm-yyyy HH24:MI:SS"),
-                responseMsgId = "",
+                responseMsgId = responseMsgId,
                 status = status,
             };
-            var s = JsonConvert.SerializeObject(_ReturnContext).ToString();
+            var _PayloadError = new PayloadError()
+            {
+
+            };
+            var _ReturnContext = new ReturnContext()
+            {
+                context = null,
+                payload = null,
+                signature = _ComputeMD5Hash
+            };
+            _ReturnContext.context = _ContextError;
+            _ReturnContext.payload = _PayloadError;
             return JsonConvert.SerializeObject(_ReturnContext).ToString();
         }
     }

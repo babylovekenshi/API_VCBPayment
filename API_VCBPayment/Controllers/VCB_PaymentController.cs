@@ -30,7 +30,7 @@ namespace API_VCBPayment.Controllers
                 List<ReturnContext> ReturnContext = new List<ReturnContext>();
                 if (string.IsNullOrEmpty(BodyJson.context.channelId) || BodyJson.context.channelId.ToString() == "string")
                 {
-                    var Error = Login.API_Return(BodyJson.context.channelId.ToString(), BodyJson.context.channelId.ToString(), 10, "FIELD_VALUE_ERROR", "FIELD_VALUE_ERROR", "FIELD_VALUE_ERROR");
+                    var Error = Login.API_Return(BodyJson.context.channelId.ToString(), BodyJson.context.channelId.ToString(), 21, "FIELD_VALUE_ERROR", 0, "Giá trị các trường thông tin không hợp lệ", "");
                     return StatusCode(200, Error);
                 }
                 List<SAP_AccountAdvice> SAP_AccountAdvice = new List<SAP_AccountAdvice>();
@@ -68,7 +68,7 @@ namespace API_VCBPayment.Controllers
                 }
                 else
                 {
-                    var Error = Login.API_Return(BodyJson.context.channelId.ToString(), BodyJson.context.channelId.ToString(), 18, "INVALID_SIGNATURE", "", "Chữ ký không hợp lệ");
+                    var Error = Login.API_Return(BodyJson.context.channelId.ToString(), BodyJson.context.channelId.ToString(), 18, "INVALID_SIGNATURE", 0, "Chữ ký không hợp lệ", "");
                     return StatusCode(200, Error);
                 }
             }
