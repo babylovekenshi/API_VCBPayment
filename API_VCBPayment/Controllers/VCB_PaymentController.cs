@@ -20,7 +20,7 @@ namespace API_VCBPayment.Controllers
         public List<Api_Json_SessionId> ApiJsonSessionId = new List<Api_Json_SessionId>();
         public VCB_PaymentController()
         {
-            
+
         }
         [HttpPost("AccountAdvice")]
         public IActionResult AccountAdvice(AccountAdvice BodyJson)
@@ -30,8 +30,8 @@ namespace API_VCBPayment.Controllers
                 List<ReturnContext> ReturnContext = new List<ReturnContext>();
                 if (string.IsNullOrEmpty(BodyJson.context.channelId) || BodyJson.context.channelId.ToString() == "string")
                 {
-                    var Error = Login.API_Return(BodyJson.context.channelId.ToString(), BodyJson.context.channelId.ToString(), 1, "FAILURE", "");
-                    return Ok(Error);
+                    var Error = Login.API_Return(BodyJson.context.channelId.ToString(), BodyJson.context.channelId.ToString(), 10, "FIELD_VALUE_ERROR", "FIELD_VALUE_ERROR", "FIELD_VALUE_ERROR");
+                    return StatusCode(200, Error);
                 }
                 List<SAP_AccountAdvice> SAP_AccountAdvice = new List<SAP_AccountAdvice>();
                 var _SAP_AccountAdvice = new SAP_AccountAdvice()
@@ -59,7 +59,7 @@ namespace API_VCBPayment.Controllers
                     U_InputJson = JsonConvert.SerializeObject(BodyJson),
                     U_internalRefNo = null,
                 };
-                bool signature = Login.VerifyMD5Hash(BodyJson.signature.ToString(), System.IO.File.ReadAllText(@"/usr/sap/API_VCB_PAYMENT/VerifyMD5Hash.txt"));
+                bool signature = Login.VerifyMD5Hash(BodyJson.context.channelId + "|" + BodyJson.context.channelRefNumber + "|" + "Simon@VCBPayment2503", BodyJson.signature.ToString());
                 if (signature == true)
                 {
                     var ACCOUNTADVICE = JsonConvert.SerializeObject(_SAP_AccountAdvice);
@@ -68,9 +68,9 @@ namespace API_VCBPayment.Controllers
                 }
                 else
                 {
-                    var Error = Login.API_Return(BodyJson.context.channelId.ToString(), BodyJson.context.channelId.ToString(), 1, "FAILURE", "");
-                    return Ok(Error);
-                }              
+                    var Error = Login.API_Return(BodyJson.context.channelId.ToString(), BodyJson.context.channelId.ToString(), 18, "INVALID_SIGNATURE", "", "Chữ ký không hợp lệ");
+                    return StatusCode(200, Error);
+                }
             }
             catch (WebException ex)
             {
@@ -84,11 +84,11 @@ namespace API_VCBPayment.Controllers
 #pragma warning restore CS8602 // Dereference of a possibly null reference.
         }
 
-        [HttpGet]
-        public IActionResult health()
-        {
-            return Ok(new { message = "API is working!" });
-        }
+        //[HttpGet]
+        //public IActionResult Check()
+        //{
+        //    return Ok(new { message = "API is working!" });
+        //}
 
 
     }

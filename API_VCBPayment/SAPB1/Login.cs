@@ -134,7 +134,7 @@ namespace API_VCBPayment.SAPB1
                 using (var stream = ex.Response.GetResponseStream())
                 using (var reader = new StreamReader(stream))
                 {
-                    var Error = Login.API_Return(channelId.ToString(), channelRefNumber.ToString(), 400, "400", "400", "BAD_REQUEST");
+                    var Error = Login.API_Return(channelId.ToString(), channelRefNumber.ToString(), 400, "BAD_REQUEST", "400", "BAD_REQUEST");
                     return (Error);
                 }
             }
@@ -187,7 +187,17 @@ namespace API_VCBPayment.SAPB1
                 return sb.ToString().Equals(hash, StringComparison.OrdinalIgnoreCase);
             }
         }
+        public static bool VerifyHMACMD5(string input, string secretKey, string expectedHash)
+        {
+            using (HMACMD5 hmac = new HMACMD5(Encoding.UTF8.GetBytes(secretKey)))
+            {
+                byte[] inputBytes = Encoding.UTF8.GetBytes(input);
+                byte[] hashBytes = hmac.ComputeHash(inputBytes);
+                string computedHash = BitConverter.ToString(hashBytes).Replace("-", "").ToLower();
 
+                return computedHash == expectedHash.ToLower();
+            }
+        }
         public static string API_Return(string channelId, string channelRefNumber, int errorCode, string errorMessage, string responseMsgId, string status)
         {
             var _ReturnContext = new ReturnContext()
