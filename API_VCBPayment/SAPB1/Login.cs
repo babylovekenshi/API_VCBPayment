@@ -9,6 +9,7 @@ using System.Security.Cryptography;
 using System.Text;
 using static API_VCBPayment.SAPB1.ModelClass;
 using static System.Net.Mime.MediaTypeNames;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace API_VCBPayment.SAPB1
 {
@@ -84,6 +85,52 @@ namespace API_VCBPayment.SAPB1
             }
         }
 #pragma warning disable CS8602 // Dereference of a possibly null reference.
+        public static string API_PATCH(string Input_PATCH, string TableName, string DocNum)
+        {
+            string? IPServer = "117.4.122.18";//GetLocalIPAddress();
+#pragma warning disable SYSLIB0014 // Type or member is obsolete
+            var httpWebRequestMESLSX = (HttpWebRequest)WebRequest.Create($"https://{IPServer}:50000/b1s/v1/{TableName}({DocNum})");
+#pragma warning restore SYSLIB0014 // Type or member is obsolete
+            httpWebRequestMESLSX.ContentType = "application/json";
+            httpWebRequestMESLSX.Method = "PATCH";
+            httpWebRequestMESLSX.KeepAlive = true;
+            httpWebRequestMESLSX.ServerCertificateValidationCallback += (sender, certificate, chain, sslPolicyErrors) => true;
+            httpWebRequestMESLSX.Headers.Add("B1S-WCFCompatible", "true");
+            httpWebRequestMESLSX.Headers.Add("B1S-MetadataWithoutSession", "true");
+            httpWebRequestMESLSX.Accept = "*/*";
+            httpWebRequestMESLSX.ServicePoint.Expect100Continue = false;
+            httpWebRequestMESLSX.Headers.Add("Accept-Encoding", "gzip, deflate, br");
+            httpWebRequestMESLSX.AutomaticDecompression = DecompressionMethods.GZip;
+            CookieContainer cookies = new CookieContainer();
+
+            cookies.Add(new Cookie("B1SESSION", LogIn().ToList().FirstOrDefault().SessionId) { Domain = IPServer });
+
+            cookies.Add(new Cookie("ROUTEID", ".node1") { Domain = IPServer });
+            httpWebRequestMESLSX.CookieContainer = cookies;
+
+            using (var streamWriter = new StreamWriter(httpWebRequestMESLSX.GetRequestStream()))
+            { streamWriter.Write(Input_PATCH); }
+            try
+            {
+                var httpResponseMESCD = (HttpWebResponse)httpWebRequestMESLSX.GetResponse();
+                string Error = string.Empty;
+                using (var streamReaderMESCD = new StreamReader(httpResponseMESCD.GetResponseStream()))
+                {
+    
+                    return Error;
+                }
+
+            }
+            catch (WebException ex)
+            {
+                using (var stream = ex.Response.GetResponseStream())
+                using (var reader = new StreamReader(stream))
+                {
+                    
+                    return reader.ReadToEnd();
+                }
+            }
+        }
         public static string API_POST(string ApiMESCD, string TableName, string channelId, string channelRefNumber)
         {
             if (LogIn().ToList().Count() == 0)
@@ -116,15 +163,24 @@ namespace API_VCBPayment.SAPB1
             try
             {
                 var httpResponseMESCD = (HttpWebResponse)httpWebRequestMESLSX.GetResponse();
-
+                string Error = string.Empty;
                 using (var streamReaderMESCD = new StreamReader(httpResponseMESCD.GetResponseStream()))
                 {
                     var resultMESLSX = streamReaderMESCD.ReadToEnd();
-                    Console.WriteLine(resultMESLSX);
-                    var SAP_API_Return = JsonConvert.DeserializeObject<API_Return>(resultMESLSX);
-
-                    int SAP_channelRefNumber = SAP_API_Return.DocEntry;
-                    var Error = Login.API_Return(channelId.ToString(), channelRefNumber.ToString(), 0, "Success", SAP_channelRefNumber, "Truy vấn, thanh toán thành công", "");
+                    if (TableName == "ACCOUNTADVICE")
+                    {
+                        
+                        Console.WriteLine(resultMESLSX);
+                        var SAP_API_Return = JsonConvert.DeserializeObject<API_Return>(resultMESLSX);
+                        int SAP_channelRefNumber = SAP_API_Return.DocEntry;
+                        Error = Login.API_Return(channelId.ToString(), channelRefNumber.ToString(), 0, "Success", SAP_channelRefNumber, "Truy vấn, thanh toán thành công", "");
+                    }
+                    if (TableName == "IncomingPayments")
+                    {
+                        var SAP_IncomingPayment_Return = JsonConvert.DeserializeObject<IncomingPayment>(resultMESLSX);
+                        API_PATCH("{\"U_DocNum\": \"MBVCB.6960980.B T T chuyen tien.CT tu 0011000994178 BTT toi 0011004110847 C N O VIETC1\"}", "IncomingPayments", SAP_IncomingPayment_Return.DocNum.ToString());
+                        Error = SAP_IncomingPayment_Return.DocNum.ToString();
+                    }
                     return Error;
                 }
 

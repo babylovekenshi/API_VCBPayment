@@ -63,6 +63,7 @@
         public object? U_signature { get; set; }
         public object? U_InputJson { get; set; }
         public object? U_internalRefNo { get; set; }
+        public string? U_DocNum { get; set; }
     }
 
 
