@@ -17,27 +17,29 @@ namespace API_VCBPayment.SAPB1
     public class Login
     {
 
-       
+#pragma warning disable CS8602 // Dereference of a possibly null reference.
+#pragma warning disable CS8603 // Possible null reference return.
+#pragma warning disable CS8600 // Converting null literal or possible null value to non-nullable type.
+#pragma warning disable SYSLIB0014 // Type or member is obsolete
+#pragma warning disable SYSLIB0014 // Type or member is obsolete
         public static List<Api_Json_SessionId> LogIn()
         {
             List<Api_Json_SessionId>? ApiJsonSessionId = new List<Api_Json_SessionId>();
             try
             {
-#pragma warning disable CS8602 // Dereference of a possibly null reference.
-
                 string? IPServer;
                 IPServer = "117.4.122.18";//GetLocalIPAddress();
                 UserDto _NewUser = new UserDto
                 {
                     UserName = "manager",
                     Password = "Admin@123",
-                    CompanyDB = "SIMON_TEST",
+                    CompanyDB = "SIMON_TEST08042025",
                 };
                 var NewUserJson = JsonConvert.SerializeObject(_NewUser);
 
-#pragma warning disable SYSLIB0014 // Type or member is obsolete
+
                 var httpWebRequest = (HttpWebRequest)WebRequest.Create($"https://{IPServer}:50000/b1s/v1/Login");
-#pragma warning restore SYSLIB0014 // Type or member is obsolete
+
                 httpWebRequest.ContentType = "application/json";
                 httpWebRequest.Method = "POST";
                 httpWebRequest.KeepAlive = true;
@@ -81,10 +83,8 @@ namespace API_VCBPayment.SAPB1
                 {
                     return ApiJsonSessionId;
                 }
-#pragma warning restore CS8602 // Dereference of a possibly null reference.
             }
         }
-#pragma warning disable CS8602 // Dereference of a possibly null reference.
         public static string API_PATCH(string Input_PATCH, string TableName, string DocNum)
         {
             string? IPServer = "117.4.122.18";//GetLocalIPAddress();
@@ -131,16 +131,18 @@ namespace API_VCBPayment.SAPB1
                 }
             }
         }
-        public static string API_POST(string ApiMESCD, string TableName, string channelId, string channelRefNumber)
+        public static string API_POST(string ApiMESCD, string TableName, string channelId, string channelRefNumber, MNotifyTrans BodyJson)
         {
             if (LogIn().ToList().Count() == 0)
             {
-                Login.LogIn();
+                LogIn();
             }
             string? IPServer = "117.4.122.18";//GetLocalIPAddress();
+
 #pragma warning disable SYSLIB0014 // Type or member is obsolete
             var httpWebRequestMESLSX = (HttpWebRequest)WebRequest.Create($"https://{IPServer}:50000/b1s/v1/{TableName}");
-#pragma warning restore SYSLIB0014 // Type or member is obsolete
+
+
             httpWebRequestMESLSX.ContentType = "application/json";
             httpWebRequestMESLSX.Method = "POST";
             httpWebRequestMESLSX.KeepAlive = true;
@@ -153,7 +155,9 @@ namespace API_VCBPayment.SAPB1
             httpWebRequestMESLSX.AutomaticDecompression = DecompressionMethods.GZip;
             CookieContainer cookies = new CookieContainer();
 
-            cookies.Add(new Cookie("B1SESSION", LogIn().ToList().FirstOrDefault().SessionId) { Domain = IPServer });
+
+            cookies.Add(new Cookie("B1SESSION", LogIn().FirstOrDefault().SessionId) { Domain = IPServer });
+
 
             cookies.Add(new Cookie("ROUTEID", ".node1") { Domain = IPServer });
             httpWebRequestMESLSX.CookieContainer = cookies;
@@ -175,13 +179,38 @@ namespace API_VCBPayment.SAPB1
                         int SAP_channelRefNumber = SAP_API_Return.DocEntry;
                         Error = Login.API_Return(channelId.ToString(), channelRefNumber.ToString(), 0, "Success", SAP_channelRefNumber, "Truy vấn, thanh toán thành công", "");
                     }
-                    if (TableName == "IncomingPayments")
+                    if(TableName == "NOTR")
                     {
-                        var SAP_IncomingPayment_Return = JsonConvert.DeserializeObject<IncomingPayment>(resultMESLSX);
-                        API_PATCH("{\"U_DocNum\": \"MBVCB.6960980.B T T chuyen tien.CT tu 0011000994178 BTT toi 0011004110847 C N O VIETC1\"}", "IncomingPayments", SAP_IncomingPayment_Return.DocNum.ToString());
-                        Error = SAP_IncomingPayment_Return.DocNum.ToString();
+                        string errorcode = "00", errormessage = "Nhận giao dịch thành công";
+                        string signature = string.Empty;
+                        signature += channelId + errorcode + errormessage;
+                        var cerFilePathEncrypt = "D:\\E\\TAMKIM\\BA\\SimonERPNotifyTrans\\SimonERPNotifyTrans\\bin\\Debug\\net7.0\\opensuse.15.1-x64\\publish\\SimonERP_Hana.p12";
+                        var cerFilePath1 = "D:\\E\\TAMKIM\\BA\\SimonERPNotifyTrans\\SimonERPNotifyTrans\\bin\\Debug\\net7.0\\opensuse.15.1-x64\\publish\\SimonERP_Hana.cer";
+                        var StringEncryptSHA256 = Certificate.EncryptSHA256(signature, cerFilePathEncrypt);
+                        var boolVerify = Certificate.Verify(signature, StringEncryptSHA256, cerFilePath1);
+
+                        var _JsonReturnNotifytrans = JsonConvert.DeserializeObject<JsonReturnNT>(JsonConvert.SerializeObject(BodyJson));
+
+
+                        _JsonReturnNotifytrans.errorCode = errorcode;
+                        _JsonReturnNotifytrans.errorDesc = errormessage;
+                        _JsonReturnNotifytrans.signature = StringEncryptSHA256;
+
+
+                        Error = _JsonReturnNotifytrans.ToString();
+
                     }
+                    //if (TableName == "IncomingPayments")
+                    //{
+                    //    var SAP_IncomingPayment_Return = JsonConvert.DeserializeObject<IncomingPayment>(resultMESLSX);
+                    //    API_PATCH("{\"U_DocNum\": \"MBVCB.6960980.B T T chuyen tien.CT tu 0011000994178 BTT toi 0011004110847 C N O VIETC1\"}", "IncomingPayments", SAP_IncomingPayment_Return.DocNum.ToString());
+                    //    Error = SAP_IncomingPayment_Return.DocNum.ToString();
+                    //}
+
+
                     return Error;
+
+
                 }
 
             }
@@ -190,12 +219,101 @@ namespace API_VCBPayment.SAPB1
                 using (var stream = ex.Response.GetResponseStream())
                 using (var reader = new StreamReader(stream))
                 {
-                    var Error = Login.API_Return(channelId.ToString(), channelRefNumber.ToString(), 400, "BAD_REQUEST", 0, "BAD_REQUEST", "");
+                    string Error = string.Empty;
+
+                    if (TableName == "ACCOUNTADVICE")
+                    {
+                        Error = Login.API_Return(channelId.ToString(), channelRefNumber.ToString(), 400, "BAD_REQUEST", 0, "BAD_REQUEST", "");
+                    }
+                    if (TableName == "NOTR")
+                    {
+                        var data = new
+                        {
+                            errorcode = "99",
+                            errormessage = "Lỗi không xác định",
+                        };
+                        Error = JsonConvert.SerializeObject(data).ToString();
+                    }
                     return (Error);
                 }
             }
         }
-#pragma warning restore CS8602 // Dereference of a possibly null reference.
+
+        public static string API_GET(string FormDate, string ToDate)
+        {
+            try
+            {
+                if (LogIn().ToList().Count() == 0)
+                {
+                    Login.LogIn();
+                }
+                string? IPServer = "117.4.122.18";
+#pragma warning disable SYSLIB0014 // Type or member is obsolete
+                var httpWebRequest = (HttpWebRequest)WebRequest.Create($"https://{IPServer}:50000/b1s/v1/BusinessPartners?$select=CardCode,CardName,CardType&$filter=CreateDate ge datetime'{FormDate}' AND  CreateDate le datetime'{ToDate}'&$orderby=CardCode");
+#pragma warning restore SYSLIB0014 // Type or member is obsolete
+                httpWebRequest.ContentType = "application/json";
+                httpWebRequest.Method = "GET";
+                httpWebRequest.KeepAlive = true;
+                httpWebRequest.ServerCertificateValidationCallback += (sender, certificate, chain, sslPolicyErrors) => true;
+                httpWebRequest.Headers.Add("B1S-WCFCompatible", "true");
+                httpWebRequest.Headers.Add("B1S-MetadataWithoutSession", "true");
+                httpWebRequest.Headers.Add("Prefer", "odata.maxpagesize=2000");
+                httpWebRequest.Accept = "*/*";
+                httpWebRequest.ServicePoint.Expect100Continue = false;
+                httpWebRequest.Headers.Add("Accept-Encoding", "gzip, deflate, br");
+                httpWebRequest.AutomaticDecompression = DecompressionMethods.GZip;
+                CookieContainer cookies = new CookieContainer();
+                cookies.Add(new Cookie("B1SESSION", LogIn().ToList().FirstOrDefault().SessionId) { Domain = IPServer });
+                cookies.Add(new Cookie("ROUTEID", ".node1") { Domain = IPServer });
+                httpWebRequest.CookieContainer = cookies;
+
+                //using (var streamWriter = new StreamWriter(httpWebRequest.GetRequestStream()))
+
+
+                var httpResponse = (HttpWebResponse)httpWebRequest.GetResponse();
+
+                using (var streamReader = new StreamReader(httpResponse.GetResponseStream()))
+                {
+                    var result = streamReader.ReadToEnd();
+                    Console.WriteLine(result);
+
+                    string cerFilePath = "/usr/sap/Simon_NotifyTrans/SimonERP_Hana.cer";
+                    string cerFilePathEncrypt = "/usr/sap/Simon_NotifyTrans/SimonERP_Hana.p12";
+                    var StringEncryptSHA256 = Certificate.EncryptSHA256("AoCZLV57NJy2X6PfCGWOX0AOdTEENFca", cerFilePathEncrypt);
+                    var boolVerify = Certificate.Verify("AoCZLV57NJy2X6PfCGWOX0AOdTEENFca", StringEncryptSHA256, cerFilePath);
+                    if (boolVerify == false)
+                    {
+                        var VietTinReturn = new
+                        {
+                            code = 1,
+                            message = "Verify string error. Please check secret key. Verify string is invalid."
+                        };
+                        var Error = JsonConvert.SerializeObject(VietTinReturn).ToString();
+                        return Error;
+                    }
+                    else
+                    {
+
+
+                        var COnvertJson = JsonConvert.DeserializeObject<JsonReturnBP>(result);
+                        COnvertJson.signature = StringEncryptSHA256;
+                        var error = COnvertJson.ToString();
+                        return error.ToString();
+                    }
+                }
+
+            }
+            catch (Exception ex)
+            {
+                var Error = ex.Message.ToString();
+                return Error ;
+            }
+        }
+
+
+
+        #region
+
         static string GetLocalIPAddress()
         {
             string hostName = Dns.GetHostName();
@@ -286,5 +404,10 @@ namespace API_VCBPayment.SAPB1
             _ReturnContext.payload = _PayloadError;
             return JsonConvert.SerializeObject(_ReturnContext).ToString();
         }
+
+        #endregion
+#pragma warning restore SYSLIB0014 // Type or member is obsolete
+#pragma warning restore CS8600 // Converting null literal or possible null value to non-nullable type.
+#pragma warning restore CS8603 // Possible null reference return.
     }
 }

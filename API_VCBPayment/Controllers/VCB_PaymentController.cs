@@ -3,18 +3,12 @@ using System.Net;
 using API_VCBPayment.SAPB1;
 using Newtonsoft.Json;
 using static API_VCBPayment.SAPB1.ModelClass;
-using static System.Runtime.InteropServices.JavaScript.JSType;
-using System.IO;
-using System.Threading.Channels;
-using System.Reflection.PortableExecutable;
-using System.Security.Cryptography;
-using System.Text;
-using Microsoft.AspNetCore.Http.HttpResults;
+
 #pragma warning disable CS8602 // Dereference of a possibly null reference.
 namespace API_VCBPayment.Controllers
 {
     [ApiController]
-    [Route("/api/VCBPayment/")]
+    [Route("/api")]
     public class VCB_PaymentController : Controller
     {
         public List<Api_Json_SessionId> ApiJsonSessionId = new List<Api_Json_SessionId>();
@@ -22,7 +16,7 @@ namespace API_VCBPayment.Controllers
         {
 
         }
-        [HttpPost("AccountAdvice")]
+        [HttpPost("/VCBPayment/AccountAdvice")]
         public IActionResult AccountAdvice(AccountAdvice BodyJson)
         {
             try
@@ -50,7 +44,7 @@ namespace API_VCBPayment.Controllers
 
                     };
                     var MIncomingPayments = JsonConvert.SerializeObject(_PostIncoming);
-                    var IncomingPayments = Login.API_POST(MIncomingPayments, "IncomingPayments", "", "");
+                    var IncomingPayments = Login.API_POST(MIncomingPayments, "IncomingPayments", "", "",null);
                     #endregion
 
                     #region Log AccountAdvice
@@ -82,7 +76,7 @@ namespace API_VCBPayment.Controllers
                         U_DocNum = null,
                     };
                     var ACCOUNTADVICE = JsonConvert.SerializeObject(_SAP_AccountAdvice);
-                    var _API_POST = Login.API_POST(ACCOUNTADVICE, "ACCOUNTADVICE", BodyJson.context.channelId.ToString(), BodyJson.context.channelRefNumber.ToString());
+                    var _API_POST = Login.API_POST(ACCOUNTADVICE, "ACCOUNTADVICE", BodyJson.context.channelId.ToString(), BodyJson.context.channelRefNumber.ToString(),null);
                     #endregion
 
                     return Ok(_API_POST);
@@ -102,15 +96,104 @@ namespace API_VCBPayment.Controllers
 
                 }
             }
-#pragma warning restore CS8602 // Dereference of a possibly null reference.
         }
 
-        //[HttpGet]
-        //public IActionResult Check()
-        //{
-        //    return Ok(new { message = "API is working!" });
-        //}
+        [HttpPost("BusinessPartners")]
+        public IActionResult BusinessPartners(JsonBusinessPartners BodyJson)
+        {
+
+            try
+            {
+                var FormDate = (BodyJson.FromDate).ToString("yyyy-MM-dd");
+                var ToDate = (BodyJson.ToDate).ToString("yyyy-MM-dd");
+                var BusinessPartners = Login.API_GET(FormDate, ToDate);
+                return Ok(BusinessPartners);
+            }
+            catch (WebException ex)
+            {
+                using (var stream = ex.Response.GetResponseStream())
+                using (var reader = new StreamReader(stream))
+                {
+                    return StatusCode(400, "BAD_REQUEST");
+                }
 
 
+            }
+
+
+        }
+
+        [HttpPost("NotifyTrans")]
+        public IActionResult NotifyTrans(MNotifyTrans BodyJson)
+        {
+            try
+            {
+                var re = Request;
+                var headers = re.Headers;
+                string Headersignature = string.Empty;
+
+                var x_ibm_client_secret = Request.Headers.Keys.Where(it => it.Contains("x-ibm-client-secret")).FirstOrDefault();
+                var x_ibm_client_id = Request.Headers.Keys.Where(it => it.Contains("x-ibm-client-id")).FirstOrDefault();
+                var x_ibm_client_secretValue = Request.Headers.Values.Where(it => it.Contains("2cd7b943f4d7c5115d44b81487497ae3")).FirstOrDefault();
+                var x_ibm_client_idValue = Request.Headers.Values.Where(it => it.Contains("fbbf1989a3ad0de68446317f5f104df0")).FirstOrDefault();
+                //if ((x_ibm_client_secret != "x-ibm-client-secret" && x_ibm_client_secretValue != "2cd7b943f4d7c5115d44b81487497ae3") || (x_ibm_client_id != "x-ibm-client-id" && x_ibm_client_idValue != "fbbf1989a3ad0de68446317f5f104df0"))
+                //{
+                //    return StatusCode(StatusCodes.Status401Unauthorized, new { httpCode = "401", httpMessage = "Unauthorized", moreInformation = "Invalid client id or secret." });
+                //}
+                //string cerFilePath = "D:\\TAMKIM\\BA\\SimonERPNotifyTrans\\SimonERPNotifyTrans\\bin\\Debug\\net7.0\\opensuse.15.1-x64\\publish\\TEST_VIETINBANK_CERT_NOTIFY.txt";
+                string cerFilePath = "/usr/sap/Simon_NotifyTrans/TEST_VIETINBANK_CERT_NOTIFY.txt";
+                Headersignature = BodyJson.transId + BodyJson.transTime + BodyJson.custCode + BodyJson.amount +
+                        BodyJson.bankTransId +
+                        BodyJson.remark;
+                var _Boool = Certificate.Verify(Headersignature, BodyJson.signature, cerFilePath);
+                if (_Boool == false)
+                {
+                    //return StatusCode(StatusCodes.Status400BadRequest, new { code = 1, message = "Verify string error. Please check secret key. Verify string is invalid." });
+                }
+
+                List<NOTR_LCollection> NOTR_Lcollection = new List<NOTR_LCollection>();
+                List<MInsertNotifyTrans> MInsertNotifyTrans = new List<MInsertNotifyTrans>();
+                NOTR_LCollection _NOTR_Lcollection = new NOTR_LCollection()
+                {
+                    U_transId = BodyJson.transId == null ? "" : BodyJson.transId,
+                    U_transTime = BodyJson.transTime == null ? "" : BodyJson.transTime,
+                    U_transType = BodyJson.transType == null ? "" : BodyJson.transType,
+                    U_custCode = BodyJson.custCode == null ? "" : BodyJson.custCode,
+                    U_sendBankId = BodyJson.sendBankId == null ? "" : BodyJson.sendBankId,
+                    U_sendBranchId = BodyJson.sendBranchId == null ? "" : BodyJson.sendBranchId,
+                    U_sendAcctId = BodyJson.sendAcctId == null ? "" : BodyJson.sendAcctId,
+                    U_sendAcctName = BodyJson.sendAcctName == null ? "" : BodyJson.sendAcctName,
+                    U_recvAcctId = BodyJson.recvAcctId == null ? "" : BodyJson.recvAcctId,
+                    U_recvAcctName = BodyJson.recvAcctName == null ? "" : BodyJson.recvAcctName,
+                    U_recvVirtualAcctId = BodyJson.recvVirtualAcctId == null ? "" : BodyJson.recvVirtualAcctId,
+                    U_amount = BodyJson.amount == null ? "" : BodyJson.amount,
+                    U_bankTransId = BodyJson.bankTransId == null ? "" : BodyJson.bankTransId,
+                    U_remark = BodyJson.remark == null ? "" : BodyJson.remark,
+                    U_currencyCode = BodyJson.currencyCode == null ? "" : BodyJson.currencyCode,
+                };
+                NOTR_Lcollection.Add(_NOTR_Lcollection);
+                MInsertNotifyTrans _MInsertNotifyTrans = new MInsertNotifyTrans()
+                {
+                    Code = BodyJson.msgId == null ? "" : BodyJson.msgId,
+                    U_providerId = BodyJson.providerId == null ? "" : BodyJson.providerId,
+                    U_signature = BodyJson.signature == null ? "" : BodyJson.signature,
+                };
+                MInsertNotifyTrans.Add(_MInsertNotifyTrans);
+                _MInsertNotifyTrans.NOTR_LCollection = NOTR_Lcollection;
+
+                var JsonInput = JsonConvert.SerializeObject(_MInsertNotifyTrans);
+                var NOTR = Login.API_POST(JsonInput, "NOTR", "", "", BodyJson);
+
+                return Ok("NOTR");
+
+            }
+            catch (WebException)
+            {
+                var error = new { Message = "Something went wrong", Code = "SAP" };
+                return StatusCode(400, error);
+            }
+
+
+        }
     }
 }

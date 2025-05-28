@@ -467,6 +467,8 @@
             public object? U_Blocks { get; set; }
             public object? U_NM { get; set; }
             public object? U_MD { get; set; }
+
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring as nullable.
             public object?[] Document_ApprovalRequests { get; set; }
             public List<Documentline> DocumentLines { get; set; }
             public Ewaybilldetails EWayBillDetails { get; set; }
@@ -482,6 +484,7 @@
             public Taxextension TaxExtension { get; set; }
             public Addressextension AddressExtension { get; set; }
             public object?[] DocumentReferences { get; set; }
+#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring as nullable.
         }
 
         public class Ewaybilldetails
@@ -880,7 +883,9 @@
             public object? U_tetich { get; set; }
             public object? U_PriceOrder { get; set; }
             public object? U_CTKMM { get; set; }
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring as nullable.
             public object?[] LineTaxJurisdictions { get; set; }
+
             public object?[] GeneratedAssets { get; set; }
             public object?[] EBooksDetails { get; set; }
             public object?[] DocumentLineAdditionalExpenses { get; set; }
@@ -888,6 +893,7 @@
             public object?[] SerialNumbers { get; set; }
             public object?[] BatchNumbers { get; set; }
             public object?[] DocumentLinesBinAllocations { get; set; }
+#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring as nullable.
         }
         public class Documentinstallment
         {

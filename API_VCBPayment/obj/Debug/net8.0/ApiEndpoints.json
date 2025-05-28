@@ -1,8 +1,56 @@
 [
   {
+    "ContainingType": "Program\u002B\u003C\u003Ec",
+    "Method": "\u003C\u003CMain\u003E$\u003Eb__0_1",
+    "RelativePath": "",
+    "HttpMethod": "GET",
+    "IsController": false,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": [
+      {
+        "Type": "System.Void",
+        "MediaTypes": [],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "API_VCBPayment.Controllers.VCB_PaymentController",
+    "Method": "BusinessPartners",
+    "RelativePath": "api/BusinessPartners",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "BodyJson",
+        "Type": "API_VCBPayment.JsonBusinessPartners",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "API_VCBPayment.Controllers.VCB_PaymentController",
+    "Method": "NotifyTrans",
+    "RelativePath": "api/NotifyTrans",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "BodyJson",
+        "Type": "API_VCBPayment.MNotifyTrans",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
     "ContainingType": "API_VCBPayment.Controllers.VCB_PaymentController",
     "Method": "AccountAdvice",
-    "RelativePath": "api/VCBPayment/AccountAdvice",
+    "RelativePath": "VCBPayment/AccountAdvice",
     "HttpMethod": "POST",
     "IsController": true,
     "Order": 0,

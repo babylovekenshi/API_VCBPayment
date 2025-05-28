@@ -5,7 +5,19 @@
     "version": "1.0"
   },
   "paths": {
-    "/api/VCBPayment/AccountAdvice": {
+    "/": {
+      "get": {
+        "tags": [
+          "API_VCBPayment"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/VCBPayment/AccountAdvice": {
       "post": {
         "tags": [
           "VCB_Payment"
@@ -25,6 +37,68 @@
             "application/*+json": {
               "schema": {
                 "$ref": "#/components/schemas/AccountAdvice"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/BusinessPartners": {
+      "post": {
+        "tags": [
+          "VCB_Payment"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/JsonBusinessPartners"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/JsonBusinessPartners"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/JsonBusinessPartners"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/NotifyTrans": {
+      "post": {
+        "tags": [
+          "VCB_Payment"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MNotifyTrans"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MNotifyTrans"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/MNotifyTrans"
               }
             }
           }
@@ -85,6 +159,106 @@
             "nullable": true
           },
           "branch": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "JsonBusinessPartners": {
+        "type": "object",
+        "properties": {
+          "fromDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "toDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "signature": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "MNotifyTrans": {
+        "type": "object",
+        "properties": {
+          "msgId": {
+            "type": "string",
+            "nullable": true
+          },
+          "providerId": {
+            "type": "string",
+            "nullable": true
+          },
+          "transId": {
+            "type": "string",
+            "nullable": true
+          },
+          "transTime": {
+            "type": "string",
+            "nullable": true
+          },
+          "transType": {
+            "type": "string",
+            "nullable": true
+          },
+          "custCode": {
+            "type": "string",
+            "nullable": true
+          },
+          "sendBankId": {
+            "type": "string",
+            "nullable": true
+          },
+          "sendBranchId": {
+            "type": "string",
+            "nullable": true
+          },
+          "sendAcctId": {
+            "type": "string",
+            "nullable": true
+          },
+          "sendAcctName": {
+            "type": "string",
+            "nullable": true
+          },
+          "recvAcctId": {
+            "type": "string",
+            "nullable": true
+          },
+          "recvAcctName": {
+            "type": "string",
+            "nullable": true
+          },
+          "recvVirtualAcctId": {
+            "type": "string",
+            "nullable": true
+          },
+          "recvVirtualAcctName": {
+            "type": "string",
+            "nullable": true
+          },
+          "bankTransId": {
+            "type": "string",
+            "nullable": true
+          },
+          "amount": {
+            "type": "string",
+            "nullable": true
+          },
+          "remark": {
+            "type": "string",
+            "nullable": true
+          },
+          "currencyCode": {
+            "type": "string",
+            "nullable": true
+          },
+          "signature": {
             "type": "string",
             "nullable": true
           }
