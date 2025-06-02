@@ -1,27 +1,20 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.HttpResults;
-using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
-using System.IO;
+﻿using Newtonsoft.Json;
 using System.Net;
-using System.Reflection.PortableExecutable;
 using System.Security.Cryptography;
 using System.Text;
 using static API_VCBPayment.SAPB1.ModelClass;
-using static System.Net.Mime.MediaTypeNames;
-using static System.Runtime.InteropServices.JavaScript.JSType;
-
+#pragma warning disable CS8602 // Dereference of a possibly null reference.
+#pragma warning disable CS8603 // Possible null reference return.
+#pragma warning disable CS8600 // Converting null literal or possible null value to non-nullable type.
+#pragma warning disable SYSLIB0014 // Type or member is obsolete
+#pragma warning disable SYSLIB0014 // Type or member is obsolete
 namespace API_VCBPayment.SAPB1
 {
 
     public class Login
     {
 
-#pragma warning disable CS8602 // Dereference of a possibly null reference.
-#pragma warning disable CS8603 // Possible null reference return.
-#pragma warning disable CS8600 // Converting null literal or possible null value to non-nullable type.
-#pragma warning disable SYSLIB0014 // Type or member is obsolete
-#pragma warning disable SYSLIB0014 // Type or member is obsolete
+
         public static List<Api_Json_SessionId> LogIn()
         {
             List<Api_Json_SessionId>? ApiJsonSessionId = new List<Api_Json_SessionId>();
@@ -184,18 +177,16 @@ namespace API_VCBPayment.SAPB1
                         string errorcode = "00", errormessage = "Nhận giao dịch thành công";
                         string signature = string.Empty;
                         signature += channelId + errorcode + errormessage;
-                        var cerFilePathEncrypt = "D:\\E\\TAMKIM\\BA\\SimonERPNotifyTrans\\SimonERPNotifyTrans\\bin\\Debug\\net7.0\\opensuse.15.1-x64\\publish\\SimonERP_Hana.p12";
-                        var cerFilePath1 = "D:\\E\\TAMKIM\\BA\\SimonERPNotifyTrans\\SimonERPNotifyTrans\\bin\\Debug\\net7.0\\opensuse.15.1-x64\\publish\\SimonERP_Hana.cer";
+                        var cerFilePathEncrypt = "/usr/sap/API_VCB_PAYMENT_PRD/SimonERP_Hana.p12";
+                        var cerFilePath1 = "/usr/sap/API_VCB_PAYMENT_PRDT/SimonERP_Hana.cer";
                         var StringEncryptSHA256 = Certificate.EncryptSHA256(signature, cerFilePathEncrypt);
                         var boolVerify = Certificate.Verify(signature, StringEncryptSHA256, cerFilePath1);
 
                         var _JsonReturnNotifytrans = JsonConvert.DeserializeObject<JsonReturnNT>(JsonConvert.SerializeObject(BodyJson));
 
-
                         _JsonReturnNotifytrans.errorCode = errorcode;
                         _JsonReturnNotifytrans.errorDesc = errormessage;
                         _JsonReturnNotifytrans.signature = StringEncryptSHA256;
-
 
                         Error = _JsonReturnNotifytrans.ToString();
 
@@ -406,8 +397,6 @@ namespace API_VCBPayment.SAPB1
         }
 
         #endregion
-#pragma warning restore SYSLIB0014 // Type or member is obsolete
-#pragma warning restore CS8600 // Converting null literal or possible null value to non-nullable type.
-#pragma warning restore CS8603 // Possible null reference return.
+
     }
 }

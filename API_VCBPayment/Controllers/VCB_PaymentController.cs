@@ -141,7 +141,7 @@ namespace API_VCBPayment.Controllers
                 //    return StatusCode(StatusCodes.Status401Unauthorized, new { httpCode = "401", httpMessage = "Unauthorized", moreInformation = "Invalid client id or secret." });
                 //}
                 //string cerFilePath = "D:\\TAMKIM\\BA\\SimonERPNotifyTrans\\SimonERPNotifyTrans\\bin\\Debug\\net7.0\\opensuse.15.1-x64\\publish\\TEST_VIETINBANK_CERT_NOTIFY.txt";
-                string cerFilePath = "/usr/sap/Simon_NotifyTrans/TEST_VIETINBANK_CERT_NOTIFY.txt";
+                string cerFilePath = "/usr/sap/API_VCB_PAYMENT_PRD/TEST_VIETINBANK_CERT_NOTIFY.txt";
                 Headersignature = BodyJson.transId + BodyJson.transTime + BodyJson.custCode + BodyJson.amount +
                         BodyJson.bankTransId +
                         BodyJson.remark;
@@ -184,7 +184,7 @@ namespace API_VCBPayment.Controllers
                 var JsonInput = JsonConvert.SerializeObject(_MInsertNotifyTrans);
                 var NOTR = Login.API_POST(JsonInput, "NOTR", "", "", BodyJson);
 
-                return Ok("NOTR");
+                return Ok(NOTR);
 
             }
             catch (WebException)
