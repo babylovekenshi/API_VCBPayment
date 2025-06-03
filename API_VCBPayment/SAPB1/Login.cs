@@ -268,8 +268,13 @@ namespace API_VCBPayment.SAPB1
                     var result = streamReader.ReadToEnd();
                     Console.WriteLine(result);
 
-                    string cerFilePath = "/usr/sap/Simon_NotifyTrans/SimonERP_Hana.cer";
-                    string cerFilePathEncrypt = "/usr/sap/Simon_NotifyTrans/SimonERP_Hana.p12";
+                    //string cerFilePath = "/usr/sap/API_VCB_PAYMENT_PRD/SimonERP_Hana.cer";
+                    //string cerFilePathEncrypt = "/usr/sap/API_VCB_PAYMENT_PRD/SimonERP_Hana.p12";
+
+
+                    string cerFilePath = "C:\\New folder\\API_VCBPayment\\API_VCBPayment\\bin\\Release\\net8.0\\opensuse.15.1-x64\\publish\\SimonERP_Hana.cer";
+                    string cerFilePathEncrypt = "C:\\New folder\\API_VCBPayment\\API_VCBPayment\\bin\\Release\\net8.0\\opensuse.15.1-x64\\publish\\SimonERP_Hana.p12";
+
                     var StringEncryptSHA256 = Certificate.EncryptSHA256("AoCZLV57NJy2X6PfCGWOX0AOdTEENFca", cerFilePathEncrypt);
                     var boolVerify = Certificate.Verify("AoCZLV57NJy2X6PfCGWOX0AOdTEENFca", StringEncryptSHA256, cerFilePath);
                     if (boolVerify == false)
