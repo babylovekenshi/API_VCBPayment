@@ -206,14 +206,12 @@
     #region JsonReturnBP
     public class JsonReturnBP
     {
-        public string? odatametadata { get; set; }
         public List<Value>? value { get; set; }
         public string? signature { get; set; }
 
     }
     public class Value
     {
-        public string? odataetag { get; set; }
         public string? CardCode { get; set; }
         public string? CardName { get; set; }
         public string? CardType { get; set; }

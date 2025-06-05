@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("API_VCBPayment")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+37668baed70afa974737017b8e19aa9360068089")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+6a74260c942960ce9012380397bccf916a7d3928")]
 [assembly: System.Reflection.AssemblyProductAttribute("API_VCBPayment")]
 [assembly: System.Reflection.AssemblyTitleAttribute("API_VCBPayment")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

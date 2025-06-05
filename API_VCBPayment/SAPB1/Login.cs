@@ -1,6 +1,8 @@
-﻿using Newtonsoft.Json;
+﻿using Microsoft.AspNetCore.Http.HttpResults;
+using Newtonsoft.Json;
 using System.Net;
 using System.Security.Cryptography;
+using System.Security.Cryptography.Xml;
 using System.Text;
 using static API_VCBPayment.SAPB1.ModelClass;
 #pragma warning disable CS8602 // Dereference of a possibly null reference.
@@ -179,16 +181,25 @@ namespace API_VCBPayment.SAPB1
                         signature += channelId + errorcode + errormessage;
                         var cerFilePathEncrypt = "/usr/sap/API_VCB_PAYMENT_PRD/SimonERP_Hana.p12";
                         var cerFilePath1 = "/usr/sap/API_VCB_PAYMENT_PRDT/SimonERP_Hana.cer";
+
+                        //string cerFilePath1 = "C:\\New folder\\API_VCBPayment\\API_VCBPayment\\bin\\Release\\net8.0\\opensuse.15.1-x64\\publish\\SimonERP_Hana.cer";
+                        //string cerFilePathEncrypt = "C:\\New folder\\API_VCBPayment\\API_VCBPayment\\bin\\Release\\net8.0\\opensuse.15.1-x64\\publish\\SimonERP_Hana.p12";
+
+
                         var StringEncryptSHA256 = Certificate.EncryptSHA256(signature, cerFilePathEncrypt);
                         var boolVerify = Certificate.Verify(signature, StringEncryptSHA256, cerFilePath1);
 
                         var _JsonReturnNotifytrans = JsonConvert.DeserializeObject<JsonReturnNT>(JsonConvert.SerializeObject(BodyJson));
 
-                        _JsonReturnNotifytrans.errorCode = errorcode;
-                        _JsonReturnNotifytrans.errorDesc = errormessage;
-                        _JsonReturnNotifytrans.signature = StringEncryptSHA256;
-
-                        Error = _JsonReturnNotifytrans.ToString();
+                        var _JsonReturnNT = new JsonReturnNT()
+                        {
+                            transId = _JsonReturnNotifytrans.transId,
+                            providerId = _JsonReturnNotifytrans.providerId,
+                            errorCode = errorcode,
+                            errorDesc = errormessage,
+                            signature = StringEncryptSHA256,
+                        };
+                        Error = JsonConvert.SerializeObject(_JsonReturnNT);
 
                     }
                     //if (TableName == "IncomingPayments")
@@ -218,12 +229,26 @@ namespace API_VCBPayment.SAPB1
                     }
                     if (TableName == "NOTR")
                     {
-                        var data = new
+                        string errorcode = "99", errormessage = "Lỗi không xác định";
+                        string signature = string.Empty;
+                        signature += channelId + errorcode + errormessage;
+                        var cerFilePathEncrypt = "/usr/sap/API_VCB_PAYMENT_PRD/SimonERP_Hana.p12";
+                        var cerFilePath1 = "/usr/sap/API_VCB_PAYMENT_PRDT/SimonERP_Hana.cer";
+                        var _JsonReturnNotifytrans = JsonConvert.DeserializeObject<JsonReturnNT>(JsonConvert.SerializeObject(BodyJson));
+                        //string cerFilePath1 = "C:\\New folder\\API_VCBPayment\\API_VCBPayment\\bin\\Release\\net8.0\\opensuse.15.1-x64\\publish\\SimonERP_Hana.cer";
+                        //string cerFilePathEncrypt = "C:\\New folder\\API_VCBPayment\\API_VCBPayment\\bin\\Release\\net8.0\\opensuse.15.1-x64\\publish\\SimonERP_Hana.p12";
+
+                        var StringEncryptSHA256 = Certificate.EncryptSHA256(signature, cerFilePathEncrypt);
+                        var boolVerify = Certificate.Verify(signature, StringEncryptSHA256, cerFilePath1);
+                        var _JsonReturnNT = new JsonReturnNT()
                         {
-                            errorcode = "99",
-                            errormessage = "Lỗi không xác định",
+                            transId = _JsonReturnNotifytrans.transId,
+                            providerId = _JsonReturnNotifytrans.providerId,
+                            errorCode = errorcode,
+                            errorDesc = errormessage,
+                            signature = StringEncryptSHA256,
                         };
-                        Error = JsonConvert.SerializeObject(data).ToString();
+                        Error = JsonConvert.SerializeObject(_JsonReturnNT);
                     }
                     return (Error);
                 }
@@ -268,12 +293,12 @@ namespace API_VCBPayment.SAPB1
                     var result = streamReader.ReadToEnd();
                     Console.WriteLine(result);
 
-                    //string cerFilePath = "/usr/sap/API_VCB_PAYMENT_PRD/SimonERP_Hana.cer";
-                    //string cerFilePathEncrypt = "/usr/sap/API_VCB_PAYMENT_PRD/SimonERP_Hana.p12";
+                    string cerFilePath = "/usr/sap/API_VCB_PAYMENT_PRD/SimonERP_Hana.cer";
+                    string cerFilePathEncrypt = "/usr/sap/API_VCB_PAYMENT_PRD/SimonERP_Hana.p12";
 
 
-                    string cerFilePath = "C:\\New folder\\API_VCBPayment\\API_VCBPayment\\bin\\Release\\net8.0\\opensuse.15.1-x64\\publish\\SimonERP_Hana.cer";
-                    string cerFilePathEncrypt = "C:\\New folder\\API_VCBPayment\\API_VCBPayment\\bin\\Release\\net8.0\\opensuse.15.1-x64\\publish\\SimonERP_Hana.p12";
+                    //string cerFilePath = "C:\\New folder\\API_VCBPayment\\API_VCBPayment\\bin\\Release\\net8.0\\opensuse.15.1-x64\\publish\\SimonERP_Hana.cer";
+                    //string cerFilePathEncrypt = "C:\\New folder\\API_VCBPayment\\API_VCBPayment\\bin\\Release\\net8.0\\opensuse.15.1-x64\\publish\\SimonERP_Hana.p12";
 
                     var StringEncryptSHA256 = Certificate.EncryptSHA256("AoCZLV57NJy2X6PfCGWOX0AOdTEENFca", cerFilePathEncrypt);
                     var boolVerify = Certificate.Verify("AoCZLV57NJy2X6PfCGWOX0AOdTEENFca", StringEncryptSHA256, cerFilePath);
@@ -284,17 +309,19 @@ namespace API_VCBPayment.SAPB1
                             code = 1,
                             message = "Verify string error. Please check secret key. Verify string is invalid."
                         };
-                        var Error = JsonConvert.SerializeObject(VietTinReturn).ToString();
+                        var Error = JsonConvert.SerializeObject(VietTinReturn);
                         return Error;
                     }
                     else
                     {
-
-
                         var COnvertJson = JsonConvert.DeserializeObject<JsonReturnBP>(result);
-                        COnvertJson.signature = StringEncryptSHA256;
-                        var error = COnvertJson.ToString();
-                        return error.ToString();
+                        var _JsonReturnBP = new JsonReturnBP()
+                        {                           
+                            signature = StringEncryptSHA256
+                        };
+                        _JsonReturnBP.value = COnvertJson.value;
+                        var JsonReturn = JsonConvert.SerializeObject(_JsonReturnBP); ;
+                        return JsonReturn;
                     }
                 }
 
@@ -398,7 +425,7 @@ namespace API_VCBPayment.SAPB1
             };
             _ReturnContext.context = _ContextError;
             _ReturnContext.payload = _PayloadError;
-            return JsonConvert.SerializeObject(_ReturnContext).ToString();
+            return JsonConvert.SerializeObject(_ReturnContext);
         }
 
         #endregion
